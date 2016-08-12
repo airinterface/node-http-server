@@ -11,10 +11,15 @@ Simple static node server for testing
    node server.js
    
    options: 
-   --p rootPath  root directry to serve the content. Otherwise
+   
+   --p rootPath  
+   
+       root directry to serve the content. Otherwise
+   
        it will serve from current directry
 
    --noCache 
+   
       It will serve static file with no cache control. 
       
 ## Contributing
