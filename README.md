@@ -1,6 +1,6 @@
 # node-http-server
 
-Simple static node server for testing 
+Simple static http server for your local work. 
 
 ## Installation
 1. Install node ( requires V4+ )
