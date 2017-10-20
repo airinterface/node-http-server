@@ -32,7 +32,9 @@ Simple static http server for your local work.
 5. Submit a pull request :D
 
 ## History
-08/12/2016 Yuri Fukuda  created 
+
+08/12/2016 Yuri Fukuda  created
+
 10/20/2017 Yuri Fukuda updated content type mapping
  
 ## License
