@@ -37,11 +37,20 @@ var http = require('http'),
 var pfile = "server.pid"
 
 var rootPath = process.cwd();
+var port     = 8080;
 var noCache  = false;
 process.argv.forEach((val, index) => {
   if( val == "--path" )
   {
     rootPath = process.argv[index+1];
+  }
+  if( val == "--port" )
+  {
+    try{ 
+      port = parseInt( process.argv[index+1] );
+    } catch ( e ) {
+      console.log( 'cound parse the port. Needs to be number' + e );
+    }
   }
   if( val == "--noCache" )
   {
@@ -50,12 +59,18 @@ process.argv.forEach((val, index) => {
 
 });
 
-console.log(`rootPath = ${rootPath}`);
+console.log(`rootPath = ${rootPath} port = ${port}`);
 
 http.createServer(function(request, response) {
   var requestUrl = url.parse(request.url, true);
   var filename = path.join( rootPath , (requestUrl.pathname == '/' ? '/index.html' : requestUrl.pathname));
-  
+  let knownMappingToContentTypes = {
+      'css'  : 'text/css',
+      'html' :  'text/html',
+      'svg"' : 'image/svg+xml',
+      'apk'  : 'application/vnd.android.package-archive'
+      }
+
   fs.readFile(filename, 'binary', function(err, file) {  
     var header   = {};
     var status   = 200;
@@ -69,29 +84,31 @@ http.createServer(function(request, response) {
       console.log('GET ' + requestUrl.pathname + requestUrl.search + ' 500 ' + err);
     }
     else {
+      let keys = Object.keys( knownMappingToContentTypes ); 
       if( noCache ) {
         header['Cache-Control'] = 'no-cache, no-store, must-revalidate';
         header['Pragma']        = 'no-cache';
         header['Expires']       = 0;
       }
       encoding = 'binary';
-      if(filename.indexOf(".css")>0){
-        header['Content-Type'] = 'text/css';
-      }else if(filename.indexOf(".html")>0){
-        header['Content-Type'] = 'text/html';
-      }else if(filename.indexOf(".svg") > 0 ){
-        header['Content-Type'] = 'image/svg+xml';
+      for( let i = 0; i < keys.length; i++ ) {
+        let key = keys[i];
+        let contentType = knownMappingToContentTypes[ key ];
+        // if it's a known type apply content type
+        if( filename.indexOf('.' + key) > 0 ) {
+          header['Content-Type'] = contentType;
+          break;
+        }
       }
       content = file;
       console.log('GET ' + requestUrl.pathname + requestUrl.search + ' 200');
     }
-     
     response.writeHead( status, header );  
     response.write( content, encoding );  
     response.end();  
   });
-}).listen(8000, function(){
-  console.log('Server running at http://localhost:8000/');
+}).listen(port, function(){
+  console.log(`Server running at http://localhost:${port}/`);
   var pid = ""+process.pid; // need to turn into a string
   // remove file if it exists
   removePIDFile();

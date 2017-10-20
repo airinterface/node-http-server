@@ -11,8 +11,10 @@ Simple static http server for your local work.
    node server.js
    
    options: 
-   
-   --p rootPath  
+   --port hosted port
+       if you don't specify it will be defaulted to 8080
+
+   --path root path  
    
        root directry to serve the content. Otherwise
    
@@ -31,6 +33,7 @@ Simple static http server for your local work.
 
 ## History
 08/12/2016 Yuri Fukuda  created 
-
+10/20/2017 Yuri Fukuda updated content type mapping
+ 
 ## License
 Under MIT License. 
