@@ -67,9 +67,11 @@ http.createServer(function(request, response) {
   let knownMappingToContentTypes = {
       'css'  : 'text/css',
       'ico'  : 'image/x-icon',
+      'js'   : 'application/javascript',
       'html' : 'text/html',
-      'svg' : 'image/svg+xml',
-      'apk'  : 'application/vnd.android.package-archive' }
+      'svg'  : 'image/svg+xml',
+      'apk'  : 'application/vnd.android.package-archive',
+      'json' : 'application/json' }
 
 
   fs.readFile(filename, 'binary', function(err, file) {  
