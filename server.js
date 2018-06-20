@@ -66,17 +66,18 @@ http.createServer(function(request, response) {
   var filename = path.join( rootPath , (requestUrl.pathname == '/' ? '/index.html' : requestUrl.pathname));
   let knownMappingToContentTypes = {
       'css'  : 'text/css',
-      'html' :  'text/html',
-      'svg"' : 'image/svg+xml',
-      'apk'  : 'application/vnd.android.package-archive'
-      }
+      'ico'  : 'image/x-icon',
+      'html' : 'text/html',
+      'svg' : 'image/svg+xml',
+      'apk'  : 'application/vnd.android.package-archive' }
+
 
   fs.readFile(filename, 'binary', function(err, file) {  
     var header   = {};
     var status   = 200;
     var content  = null;
     var encoding = 'utf8';
-    
+    var content_type = ''
     if (err) {  
       status = 500;
       header['Content-Type'] = 'text/plain';
@@ -95,13 +96,16 @@ http.createServer(function(request, response) {
         let key = keys[i];
         let contentType = knownMappingToContentTypes[ key ];
         // if it's a known type apply content type
+        console.log( 'checking .. ' + key + " indexOf(key)=" +  filename.indexOf('.' + key) );
         if( filename.indexOf('.' + key) > 0 ) {
-          header['Content-Type'] = contentType;
+          header['Content-Type'] = content_type = contentType;
           break;
         }
       }
       content = file;
       console.log('GET ' + requestUrl.pathname + requestUrl.search + ' 200');
+      console.log('filename = ' + filename + (content_type  != ''  ? (" content_type = " + content_type ) :'') );
+
     }
     response.writeHead( status, header );  
     response.write( content, encoding );  
