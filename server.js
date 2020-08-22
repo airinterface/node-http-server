@@ -30,19 +30,39 @@ IN THE SOFTWARE.
  */
 
 var http = require('http'),
+    https = require('https'),
     url = require('url'),  
     path = require('path'),  
     fs = require('fs');
   
 var pfile = "server.pid"
-
+var service = http;
 var rootPath = process.cwd();
 var port     = 8080;
 var noCache  = false;
+var protocol = "http"
+var keyPath  = null;
+var certPath = null;
+
 process.argv.forEach((val, index) => {
   if( val == "--path" )
   {
     rootPath = process.argv[index+1];
+  }
+
+  if( val == "--keyPath" )
+  {
+    keyPath = process.argv[index+1];
+  }
+
+  if( val == "--certPath" )
+  {
+    certPath = process.argv[index+1];
+  }
+
+  if( val == "--https" )
+  {
+    protocol = "https";
   }
   if( val == "--port" )
   {
@@ -59,9 +79,22 @@ process.argv.forEach((val, index) => {
 
 });
 
-console.log(`rootPath = ${rootPath} port = ${port}`);
+if( protocol == 'https' && ( keyPath == null || certPath == null ) ){
+  console.log("for https server please specify both parameter --keyPath < key path here> --certPath < certPath here >");
+  return;
+}
 
-http.createServer(function(request, response) {
+console.log(`rootPath = ${rootPath} protocol == ${protocol} port = ${port}`);
+
+var options = {};
+
+if( protocol == 'https' ) {
+  options['key']  = fs.readFileSync('cert/key.pem'); 
+  options['cert'] = fs.readFileSync('cert/cert.pem'); 
+  service  = https;
+}
+
+http.createServer(options, function(request, response) {
   var requestUrl = url.parse(request.url, true);
   var filename = path.join( rootPath , (requestUrl.pathname == '/' ? '/index.html' : requestUrl.pathname));
   let knownMappingToContentTypes = {
@@ -100,8 +133,20 @@ http.createServer(function(request, response) {
         // if it's a known type apply content type
         console.log( 'checking .. ' + key + " indexOf(key)=" +  filename.indexOf('.' + key) );
         if( filename.indexOf('.' + key) > 0 ) {
-          header['Content-Type'] = content_type = contentType;
-          break;
+            header['Content-Type'] = content_type = contentType;
+            if( content_type == "audio/mpeg" ){
+              let fileSize = fs.statSync(filename).size
+              header['Content-Length'] = '' + fileSize;
+              header['Content-Range'] = 'bytes 0-'+ ( fileSize - 1 ) +'/' + fileSize;
+              header['Accept-Ranges'] = 'bytes'
+              if( request.headers['range'] == 'bytes=0-1') {
+                header['Content-Length'] = '2';
+                header['Content-Range'] = 'bytes 0-1/' + fileSize;
+                status = 206
+              }
+
+            }
+            break;
         }
       }
       content = file;
