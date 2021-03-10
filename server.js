@@ -94,7 +94,7 @@ if( protocol == 'https' ) {
   service  = https;
 }
 
-http.createServer(options, function(request, response) {
+service.createServer(options, function(request, response) {
   var requestUrl = url.parse(request.url, true);
   var filename = path.join( rootPath , (requestUrl.pathname == '/' ? '/index.html' : requestUrl.pathname));
   let knownMappingToContentTypes = {
