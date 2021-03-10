@@ -89,8 +89,8 @@ console.log(`rootPath = ${rootPath} protocol == ${protocol} port = ${port}`);
 var options = {};
 
 if( protocol == 'https' ) {
-  options['key']  = fs.readFileSync('cert/key.pem'); 
-  options['cert'] = fs.readFileSync('cert/cert.pem'); 
+  options['key']  = fs.readFileSync( keyPath || 'cert/key.pem'); 
+  options['cert'] = fs.readFileSync(certPath || 'cert/cert.pem'); 
   service  = https;
 }
 
@@ -159,7 +159,7 @@ http.createServer(options, function(request, response) {
     response.end();  
   });
 }).listen(port, function(){
-  console.log(`Server running at http://localhost:${port}/`);
+  console.log(`Server running at ${protocol}://localhost:${port}/`);
   var pid = ""+process.pid; // need to turn into a string
   // remove file if it exists
   removePIDFile();
