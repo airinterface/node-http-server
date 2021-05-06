@@ -98,15 +98,18 @@ service.createServer(options, function(request, response) {
   var requestUrl = url.parse(request.url, true);
   var filename = path.join( rootPath , (requestUrl.pathname == '/' ? '/index.html' : requestUrl.pathname));
   let knownMappingToContentTypes = {
-      'css'  : 'text/css',
-      'ico'  : 'image/x-icon',
-      'js'   : 'application/javascript',
-      'html' : 'text/html',
-      'svg'  : 'image/svg+xml',
-      'apk'  : 'application/vnd.android.package-archive',
-      'json' : 'application/json' }
-
-
+       'css'  : 'text/css',
+        'ico'  : 'image/x-icon',
+        'js'   : 'application/javascript',
+        'html' : 'text/html',
+        'mp3'  : 'audio/mpeg',
+        'm4v'  : 'video/mp4',
+        'mp4'  : 'video/mp4',
+        'webm' : 'video/webm',
+        'svg'  : 'image/svg+xml',
+        'apk'  : 'application/vnd.android.package-archive',
+        'json' : 'application/json' 
+         }
   fs.readFile(filename, 'binary', function(err, file) {  
     var header   = {};
     var status   = 200;
@@ -134,11 +137,13 @@ service.createServer(options, function(request, response) {
         console.log( 'checking .. ' + key + " indexOf(key)=" +  filename.indexOf('.' + key) );
         if( filename.indexOf('.' + key) > 0 ) {
             header['Content-Type'] = content_type = contentType;
-            if( content_type == "audio/mpeg" ){
+            if( request.headers['range'] != null ){
               let fileSize = fs.statSync(filename).size
               header['Content-Length'] = '' + fileSize;
               header['Content-Range'] = 'bytes 0-'+ ( fileSize - 1 ) +'/' + fileSize;
               header['Accept-Ranges'] = 'bytes'
+              status = 200
+
               if( request.headers['range'] == 'bytes=0-1') {
                 header['Content-Length'] = '2';
                 header['Content-Range'] = 'bytes 0-1/' + fileSize;
