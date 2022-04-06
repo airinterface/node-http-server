@@ -28,7 +28,7 @@ Simple static http server for your local work.
 
       It will enable https server. Make suer you create key 
       and cer file by adding argument 
-      --cerPath < certPath locaion > --keyPath < key path locaion >
+      --certPath < certPath locaion > --keyPath < key path locaion >
       
 
       i.e. 
